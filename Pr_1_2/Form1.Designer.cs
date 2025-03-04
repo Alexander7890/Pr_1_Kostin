@@ -66,7 +66,6 @@
             this.label1.Size = new System.Drawing.Size(654, 26);
             this.label1.TabIndex = 4;
             this.label1.Text = "Оберіть файли для додавання сигнатур натиснувши на кнопку";
-            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // button3
             // 
@@ -94,6 +93,7 @@
             this.Controls.Add(this.label1);
             this.DoubleBuffered = true;
             this.Name = "Form1";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Form1";
             this.ResumeLayout(false);
             this.PerformLayout();

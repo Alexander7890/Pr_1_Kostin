@@ -16,18 +16,18 @@ namespace Pr_1_2
             LoadDictionary();
             InitializeContextMenu();
         }
-
+        // Завантаження словника
         private void LoadDictionary()
         {
-            listBox1.Items.Clear(); // Очистка списка перед загрузкой
+            listBox1.Items.Clear();
 
             if (File.Exists(dictionaryPath))
             {
                 var lines = File.ReadAllLines(dictionaryPath);
-                listBox1.Items.AddRange(lines); // Добавление всех строк из файла в listBox1
+                listBox1.Items.AddRange(lines);
             }
         }
-
+        // Розрахунок сигнатури файлу
         private ulong CalculateSignature(string filePath)
         {
             ulong sum = 0;
@@ -36,7 +36,7 @@ namespace Pr_1_2
                 byte[] fileBytes = File.ReadAllBytes(filePath);
                 foreach (byte b in fileBytes)
                 {
-                    sum = (sum + b) % ulong.MaxValue; // Предотвращение переполнения
+                    sum = (sum + b) % ulong.MaxValue; // Запобігання переповненню
                 }
             }
             catch (Exception ex)
@@ -45,7 +45,7 @@ namespace Pr_1_2
             }
             return sum;
         }
-
+        // Додавання файлу в список
         private void button1_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog { Multiselect = true };
@@ -56,16 +56,20 @@ namespace Pr_1_2
                     ulong signature = CalculateSignature(file);
                     string entry = $"{file}:{signature}";
 
-                    // Проверяем, есть ли уже такая запись
+                    // Перевірка наявності запису в listBox1
                     if (!listBox1.Items.Contains(entry))
                     {
                         listBox1.Items.Add(entry);
                         File.AppendAllText(dictionaryPath, entry + Environment.NewLine);
                     }
+                    else
+                    {
+                        MessageBox.Show("Запис такий існує!", "Увага", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
                 }
             }
         }
-
+        // Пошук файлу за сигнатурою
         private void button3_Click_1(object sender, EventArgs e)
         {
             string searchSignature = Microsoft.VisualBasic.Interaction.InputBox("Введіть сигнатуру для пошуку:", "Пошук сигнатури");
@@ -75,7 +79,7 @@ namespace Pr_1_2
                 if (File.Exists(dictionaryPath))
                 {
                     var matches = File.ReadLines(dictionaryPath)
-                                      .Where(line => line.EndsWith($":{searchSignature}")) // Ищем точное совпадение сигнатуры
+                                      .Where(line => line.EndsWith($":{searchSignature}")) // Шукаємо точний збіг сигнатури
                                       .ToList();
 
                     if (matches.Count > 0)
@@ -83,8 +87,8 @@ namespace Pr_1_2
                         string result = "🔍 Знайдені файли:\n\n";
                         foreach (var line in matches)
                         {
-                            int lastColonIndex = line.LastIndexOf(':'); // Находим последнее вхождение ':'
-                            if (lastColonIndex > 2) // Проверяем, чтобы не обрезать диск (C:)
+                            int lastColonIndex = line.LastIndexOf(':'); // Знаходимо останнє входження ':'
+                            if (lastColonIndex > 2) // Перевіряємо, щоб не обрізати диск (C:)
                             {
                                 string filePath = line.Substring(0, lastColonIndex);
                                 string signature = line.Substring(lastColonIndex + 1);
@@ -107,9 +111,7 @@ namespace Pr_1_2
                 MessageBox.Show("Некоректне значення сигнатури!", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
-
-
+        // Додавання контекстного меню для listBox1
         private void InitializeContextMenu()
         {
             ContextMenuStrip contextMenu = new ContextMenuStrip();
@@ -118,7 +120,7 @@ namespace Pr_1_2
             contextMenu.Items.Add(deleteItem);
             listBox1.ContextMenuStrip = contextMenu;
         }
-
+        // Видалення вибраного елемента з listBox1
         private void DeleteSelectedItem(object sender, EventArgs e)
         {
             if (listBox1.SelectedItem != null)
@@ -126,17 +128,12 @@ namespace Pr_1_2
                 string selectedEntry = listBox1.SelectedItem.ToString();
                 listBox1.Items.Remove(selectedEntry);
 
-                // Удаление строки из файла
+                // Видалення рядка з файлу
                 var lines = File.ReadAllLines(dictionaryPath).Where(line => line != selectedEntry);
                 File.WriteAllLines(dictionaryPath, lines);
 
                 MessageBox.Show("Запис успішно видалено!", "Видалення", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }
